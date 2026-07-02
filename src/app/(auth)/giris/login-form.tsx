@@ -20,6 +20,10 @@ export function LoginForm() {
     searchParams.get("hata") === "baglanti-gecersiz"
       ? "Bağlantının süresi dolmuş veya geçersiz. Lütfen tekrar deneyin."
       : null;
+  const infoMessage =
+    searchParams.get("mesaj") === "kayit-basarili-eposta-dogrulayin"
+      ? "Kaydınız oluşturuldu. Giriş yapabilmek için e-postanıza gönderilen bağlantıya tıklayın."
+      : null;
 
   const {
     register,
@@ -38,6 +42,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       {linkError && <p className="text-sm text-risk-high">{linkError}</p>}
+      {infoMessage && <p className="text-sm text-risk-compliant">{infoMessage}</p>}
       <div className="space-y-1.5">
         <Label htmlFor="email">E-posta</Label>
         <Input id="email" type="email" autoComplete="email" {...register("email")} />
@@ -55,6 +60,12 @@ export function LoginForm() {
       <p className="text-center text-sm text-mesmer-text-muted">
         <Link href="/sifremi-unuttum" className="text-mesmer-primary hover:underline">
           Şifremi unuttum
+        </Link>
+      </p>
+      <p className="text-center text-sm text-mesmer-text-muted">
+        Hesabınız yok mu?{" "}
+        <Link href="/kayit" className="text-mesmer-primary hover:underline">
+          Kayıt olun
         </Link>
       </p>
     </form>

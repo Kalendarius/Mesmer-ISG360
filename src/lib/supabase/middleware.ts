@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ONLY_ROUTES = ["/giris", "/sifremi-unuttum"];
+const PUBLIC_ONLY_ROUTES = ["/giris", "/sifremi-unuttum", "/kayit"];
 const SESSION_NEUTRAL_ROUTES = ["/sifre-sifirla"];
 const PASSTHROUGH_PREFIXES = ["/auth/", "/api/"];
 

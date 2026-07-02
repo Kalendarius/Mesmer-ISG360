@@ -6,7 +6,9 @@ Bu dosya, bu depoda çalışan gelecekteki Claude Code oturumları içindir.
 
 Çok kiracılı, mobil öncelikli **İSG Denetim ve Uygunsuzluk Takip Sistemi**. İSG uzmanları işletme/şube kaydeder, kontrol listesi ile denetim yapar, fotoğraflı uygunsuzluk açar, PDF rapor üretir ve işletme yetkilisine e-posta gönderir. Uygulamanın tamamı Türkçe arayüzlüdür, tarih formatı **GG.AA.YYYY**, saat dilimi **Europe/Istanbul**'dur.
 
-Ayrıntılı mimari plan ve veri modeli: `C:\Users\utkuk\.claude\plans\serialized-humming-oasis.md` (onaylanmış plan — büyük mimari kararlar için önce buraya bakılmalı, sonra kod).
+**Kritik ürün çerçevesi notu (2026-07-02'de netleşti):** Bu, MESMER'in yalnızca kendi iç denetçilerinin kullandığı bir araç **değildir** — MESMER'in bağımsız çalışan **tüm İSG uzmanlarına/OSGB'lere dağıtacağı** bir üründür. Her kayıt olan kullanıcı `/kayit` üzerinden kendi izole kuruluşunu oluşturur (bkz. "Herkese açık kayıt" bölümü). İlk 12 teslimlik plan (aşağıdaki modül listesi) "MESMER'in kendi aracı" varsayımıyla yazıldı ama veri modeli zaten çok kiracılı olduğundan bu varsayım hiçbir şemayı bozmadı — yalnızca kayıt/onboarding akışı sonradan eklendi.
+
+Ayrıntılı mimari plan ve veri modeli: `C:\Users\utkuk\.claude\plans\serialized-humming-oasis.md` (onaylanmış plan — büyük mimari kararlar için önce buraya bakılmalı, sonra kod; ürün çerçevesi hâlâ "MESMER'in kendi aracı" varsayımıyla yazılmıştır, yukarıdaki nota göre okunmalı).
 
 ## Teknoloji
 
@@ -28,10 +30,18 @@ Next.js (App Router, TS) · Tailwind CSS v4 (CSS-first `@theme`, `tailwind.confi
 
 - Yalnızca bu proje klasörü içinde işlem yapılır.
 - `.env` dosyalarındaki gizli değerler asla ekrana yazdırılmaz.
-- Veritabanı silinmez/sıfırlanmaz (`supabase db reset`, `DROP TABLE` vb. yasak).
-- Production deployment yapılmaz.
-- `git push` / `git push --force` yapılmaz.
-- Önemli mimari değişikliklerden önce kullanıcıya sorulur.
+- Veritabanı silinmez/sıfırlanmaz (`supabase db reset`, `DROP TABLE` vb. yasak) — hâlâ geçerli.
+- `git push` yapılmaz — hâlâ geçerli (commit/remote ekleme serbest, push kullanıcı kendi terminalinden yapıyor).
+- Önemli mimari değişikliklerden önce kullanıcıya sorulur — hâlâ geçerli.
+- **"Production deployment yapılmaz" kısıtı 2026-07-02'de kullanıcı tarafından açıkça gevşetildi** ve uygulama gerçekten canlıya alındı — bkz. "Production ortamı" bölümü. Gizli değer (DB şifresi, API anahtarı) hiçbir zaman komut satırı argümanı veya dosya olarak Claude'un araçlarından geçirilmedi; production'a dokunan her adım ya kullanıcının kendi terminalinden/panelinden yapıldı ya da zaten kimliği doğrulanmış `supabase link` oturumu üzerinden (yeniden şifre istemeden) çalıştı.
+
+## Production ortamı (2026-07-02'den itibaren canlı)
+
+- **Supabase:** "Mesmer İSG360" projesi (`xerqpobhmzuyktmyhaai`, eu-west-1). Şema tamamen uygulandı (0001–0014), seed verisi (MESMER kuruluşu + gerçek mevzuat + örnek kontrol listesi) yüklendi. Proje yerel `supabase/.temp`'te linked durumda — `npx supabase migration list --linked` / `npx supabase db push --linked --dry-run` gibi salt-okunur veya zaten-uygulanmış komutlar şifre istemeden çalışır; yeni bir DB şifresi gerektiren işlem (ilk kez `--db-url` ile bağlanmak gibi) gerekirse kullanıcıya sorulmalı, Claude'un kendisi şifreyi asla komut satırında/dosyada tutmamalı.
+- **Vercel:** GitHub reposu (`Kalendarius/Mesmer-ISG360`, kullanıcının hesabı) `mesmer-isg-360` Vercel projesine bağlı, her `master` push'unda otomatik deploy olur. Canlı adres: `https://isg360.mesmermym.com` (Wix'te kayıtlı `mesmermym.com` domain'inin alt alan adı, CNAME ile Vercel'e yönlendirilmiş).
+- **Auth — HENÜZ TAMAMLANMADI:** Production'da hâlâ hiç kullanıcı yok. `info@mesmermym.com`/`orhun@mesmermym.com` için Supabase panelinden davet gönderme + `organization_members`'a `organization_admin` olarak bağlama adımı planlandı ama kullanıcı bunun yerine "herkese açık kayıt" özelliğini istediği için (bkz. üstteki ürün çerçevesi notu) **ertelendi/karara bağlanmadı**: bu iki hesap artık ya (a) mevcut, gerçek mevzuatla önceden doldurulmuş MESMER kuruluşuna eskisi gibi elle bağlanacak, ya da (b) herkes gibi `/kayit`'tan kendi kuruluşlarını oluşturacaklar. Bir sonraki oturumda bu netleştirilmeden admin bağlama işlemi yapılmamalı.
+- **Herkese açık kayıt (`/kayit`) — production'da henüz test edilmedi**, yalnızca yerelde doğrulandı (bkz. "Herkese açık kayıt ve self-service kuruluş oluşturma" bölümü). Production'a deploy edildi (kod push'landı) ama gerçek bir üretim ortamı denemesi yapılmadı.
+- Production'da `RESEND_API_KEY` henüz girilmedi (kullanıcı bir Resend hesabı açtığında tamamlanacak) — e-posta gönderimi şu an yalnızca `email_logs`'a `durum='failed'` yazan yolu doğrulanmış durumda.
 
 ## Kurumsal Kimlik
 
@@ -188,6 +198,17 @@ supabase/templates/       özel e-posta şablonları (invite.html, recovery.html
   - **Bildirim Ayarları**: `notification_settings.{gonderen_adi,yanit_adresi,default_cc,myk_firsat_bildirim_alicilari}` — son ikisi virgül/satır ile ayrılmış e-posta listesi olarak girilip diziye çevriliyor (`src/lib/validation/organization.ts`). Satır yoksa `upsert` ile oluşturuluyor.
   - **Kullanıcılar**: liste + "Kullanıcı Davet Et" diyaloğu + aktif/pasif toggle (`ActiveToggleButton` yeniden kullanıldı). `organization_members.user_id -> auth.users` ile `profiles.id -> auth.users` arasında doğrudan FK olmadığından (Denetim modülündeki `uzman_user_id` ile aynı PostgREST kısıtı) isimler ayrı sorguyla eşleştiriliyor; e-postalar ise yeni bir RLS yardımcı fonksiyonuyla (`organization_member_emails`, migration `0014`) çözülüyor — `profiles`'a e-posta kolonu eklemek yerine (senkron sürüklenme riski) `auth.users`'ı `security definer` ile, yalnızca çağıranın zaten üyesi olduğu kuruluş için okuyan dar bir fonksiyon tercih edildi.
 - **Kullanıcı davet akışı** (`inviteUserAction`, `src/app/(app)/ayarlar/actions.ts`): `createAdminClient()` ile `inviteUserByEmail()` çağrılır (yalnızca bu adım için service-role gerekir — Teslim 9'daki "route.ts içinde" kuralının server action'lara esnetilmesiyle aynı kasıtlı tercih), ardından RLS'e tabi client ile `organization_members` satırı eklenir. Aynı kuruluşta zaten üye olan bir e-posta tekrar davet edilmeye çalışılırsa (`organization_member_emails` ile önceden kontrol edilir) net bir hata döner. **E-posta şablonu zaten Teslim 1'den beri doğruydu** (`supabase/templates/invite.html`, `/auth/confirm?...&type=invite&next=/sifre-sifirla`'ya yönlendiriyor) — eksik olan yalnızca bu şablonu tetikleyecek UI/action'dı. Gerçek uçtan uca doğrulandı: davet gönderildi → Mailpit'te doğru bağlantılı e-posta yakalandı → bağlantıya gidildi → `/sifre-sifirla`'da gerçek oturum kuruldu → şifre belirlenip `/anasayfa`'ya giriş yapıldı.
+
+## Herkese açık kayıt ve self-service kuruluş oluşturma (12 teslimlik plan + Ayarlar'dan sonra, 2026-07-02)
+
+Kullanıcının "biz bunu İSG işi yapan bütün herkese dağıtacağız" açıklamasıyla ürünün çerçevesi değişti (bkz. dosyanın en üstündeki "Ne inşa ediliyor" notu) — artık gerçekten herkese açık, self-service bir kayıt akışı var:
+
+- **`/kayit`** (`src/app/(auth)/kayit/`) — Ad Soyad, Firma/Kuruluş Adı, E-posta, Şifre alan bir form. `src/lib/supabase/middleware.ts`'deki `PUBLIC_ONLY_ROUTES`'a eklendi (yoksa route guard oturumsuz isteği `/giris`'e redirect ediyordu — davet linkine tıklarken yaşanan sw.js/manifest.json redirect sorununun (Teslim 11) aynı kategorisi, her yeni public route eklendiğinde bu listenin güncellenmesi unutulmamalı).
+- **`signUpAction`** (`src/app/(auth)/kayit/actions.ts`): önce normal (RLS'e tabi) client ile `supabase.auth.signUp()` çağrılır (auth.users satırı + `handle_new_user` trigger'ıyla otomatik `profiles` satırı oluşur), sonra **`createAdminClient()` ile** (yalnızca bu adım için service-role — yeni kullanıcı henüz hiçbir kuruluşun üyesi olmadığından normal RLS'e tabi client `organizations`'a INSERT yapamaz, "civciv-yumurta" durumu, `inviteUserAction`'daki gerekçenin aynısı): yeni bir `organizations` satırı + `organization_members` (`role='organization_admin'`) satırı oluşturulur, `profiles.default_organization_id` set edilir.
+- **`cloneStarterContent`** (`src/lib/onboarding/clone-starter-content.ts`): yeni kuruluşun sıfırdan başlamaması için MESMER'in kendi kuruluşundaki (`organization_id='00000000-0000-0000-0000-000000000001'`, sabit sabit kodlanmış — bu satır silinirse/ID değişirse bu dosya da güncellenmeli) güncel (`is_active`/`is_current`) mevzuat + regulation_versions + checklist_templates + checklist_template_versions + checklist_categories + checklist_items **kopyalanır**. `createNewVersionAction`'daki (Teslim 5) aynı ID-remap deseni kullanılır (`Map<eskiId, yeniId>`) ama burada ek olarak `regulations`/`regulation_versions` da kopyalandığından `checklist_items.regulation_version_id` de yeni kuruluştaki karşılığına remap edilir — orijinal koddan farkı budur. Yalnızca `is_current=true`/`is_active=true` satırlar kopyalanır (geçmiş/pasif versiyonlar taşınmaz, yeni kuruluşun henüz denetim geçmişi olmadığından ihtiyaç yoktur).
+- **E-posta doğrulama şu an KAPALI** (`config.toml` → `[auth.email] enable_confirmations = false`, önceki teslimlerden kalma ayar) — kayıt olan kullanıcı anında oturum açmış olarak `/anasayfa`'ya yönlendirilir, e-posta linkine tıklaması gerekmez. Bu, herkese açık bir kayıt formu için spam/sahte hesap riski taşır — **kullanıcıya bildirildi ama henüz karar verilmedi**, `enable_confirmations=true` yapılırsa `supabase/templates/`'e bir `signup` şablonu eklenmesi ve production Supabase panelinde aynı ayarın yapılması gerekir (`/auth/confirm` route'u `type=signup`'ı zaten generic olarak destekliyor, ek kod gerekmez).
+- **MYK bildirimi ve kuruluş çapraz-kirliliği yok:** `notification_settings.myk_firsat_bildirim_alicilari` zaten `organization_id`'ye özel olduğundan, yeni kaydolan her kuruluş kendi MYK bildirim alıcılarını (muhtemelen MESMER'e değil, kendilerine) `/ayarlar`'dan ayrıca girer — koddan hiçbir değişiklik gerekmedi, tasarım zaten çok kiracılıydı.
+- **Yalnızca yerelde doğrulandı**, production'da denenmedi: kayıt ol → yeni izole kuruluş (0 işletme/denetim) → gerçek mevzuat (6+2+1 madde) ve örnek kontrol listesi (kategoriler + maddeler + madde↔mevzuat eşleşmesi) doğru kopyalandı → aynı e-postayla tekrar kayıt denemesi net Türkçe hata verdi → test verileri temizlendi.
 
 ## Supabase yerel geliştirme
 

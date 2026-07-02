@@ -27,3 +27,17 @@ export const profileSchema = z.object({
   phone: z.string(),
 });
 export type ProfileInput = z.infer<typeof profileSchema>;
+
+export const signUpSchema = z
+  .object({
+    fullName: z.string().min(1, "Ad soyad zorunludur."),
+    companyName: z.string().min(1, "Firma/kuruluş adı zorunludur."),
+    email: z.string().min(1, "E-posta zorunludur.").email("Geçerli bir e-posta adresi girin."),
+    password: z.string().min(8, "Şifre en az 8 karakter olmalıdır."),
+    passwordConfirm: z.string().min(1, "Şifre tekrarı zorunludur."),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "Şifreler eşleşmiyor.",
+    path: ["passwordConfirm"],
+  });
+export type SignUpInput = z.infer<typeof signUpSchema>;
