@@ -30,7 +30,6 @@ export const notificationSettingsSchema = z.object({
   gonderen_adi: optionalString,
   yanit_adresi: optionalString,
   default_cc: optionalString,
-  myk_firsat_bildirim_alicilari: optionalString,
 });
 export type NotificationSettingsInput = z.infer<typeof notificationSettingsSchema>;
 
@@ -48,7 +47,6 @@ export function toNotificationSettingsRecord(input: NotificationSettingsInput) {
     gonderen_adi: nullIfEmpty(input.gonderen_adi),
     yanit_adresi: nullIfEmpty(input.yanit_adresi),
     default_cc: parseEmailList(input.default_cc),
-    myk_firsat_bildirim_alicilari: parseEmailList(input.myk_firsat_bildirim_alicilari),
   };
 }
 

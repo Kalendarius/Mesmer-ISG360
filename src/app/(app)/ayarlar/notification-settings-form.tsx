@@ -55,19 +55,6 @@ export function NotificationSettingsForm({ defaultValues }: { defaultValues: Not
           />
           {errors.default_cc && <p className="text-sm text-risk-high">{errors.default_cc.message}</p>}
         </div>
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor="myk_firsat_bildirim_alicilari">MYK Belgelendirme Fırsatı Bildirim Alıcıları</Label>
-          <Textarea
-            id="myk_firsat_bildirim_alicilari"
-            rows={2}
-            placeholder="Her satıra veya virgülle ayırarak bir e-posta adresi girin"
-            {...register("myk_firsat_bildirim_alicilari")}
-          />
-          <p className="text-xs text-mesmer-text-muted">
-            Bir denetimde MYK belgesi eksikliği türünde bir uygunsuzluk oluştuğunda bu adreslere dahili bildirim
-            gönderilir (işletme yetkilisine değil).
-          </p>
-        </div>
       </div>
       {formError && <p className="text-sm text-risk-high">{formError}</p>}
       {saved && !formError && <p className="text-sm text-risk-compliant">Kaydedildi.</p>}

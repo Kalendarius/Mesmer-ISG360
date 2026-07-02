@@ -77,7 +77,6 @@ export default async function AyarlarPage() {
               gonderen_adi: notificationSettings?.gonderen_adi ?? "",
               yanit_adresi: notificationSettings?.yanit_adresi ?? "",
               default_cc: (notificationSettings?.default_cc ?? []).join("\n"),
-              myk_firsat_bildirim_alicilari: (notificationSettings?.myk_firsat_bildirim_alicilari ?? []).join("\n"),
             }}
           />
         </CardContent>

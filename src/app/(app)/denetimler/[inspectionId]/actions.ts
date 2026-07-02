@@ -126,13 +126,20 @@ export async function markNonCompliantAction(
 }
 
 /**
- * MYK belgelendirme fırsatı dahili bildirimi: is_certification_opportunity
- * işaretli bir maddeden uygunsuzluk doğduğunda, işletme yetkilisinden
- * bağımsız olarak kuruluşun dahili alıcı listesine gider (bkz. CLAUDE.md →
- * "Beklenen özellik: MYK belgelendirme fırsatı bildirimi"). Alıcı
- * tanımlanmamışsa (notification_settings yok veya liste boş) sessizce
- * atlanır — bu, hata değil, henüz yapılandırılmamış bir özelliktir.
+ * MYK belgelendirme fırsatı dahili bildirimi — MESMER'in kendi iş modeli:
+ * MESMER MYK onaylı bir belgelendirme kuruluşu ve bu uygulamayı TÜM
+ * bağımsız İSG uzmanlarına/OSGB'lere dağıtıyor (bkz. CLAUDE.md → "Ne
+ * inşa ediliyor"). is_certification_opportunity işaretli bir maddeden
+ * HANGİ KURULUŞTA (hangi İSG uzmanının denetiminde) olursa olsun bir
+ * uygunsuzluk doğduğunda, MESMER'in kendisi (platform sahibi olarak) bunu
+ * bilmek istiyor — böylece o işletmeye gidip MYK sınavı/belgesi teklif
+ * edebiliyor. Bu yüzden alıcı listesi kasıtlı olarak **sabit kodlanmış**
+ * ve `notification_settings`'ten (kuruluşa özel, dolayısıyla her kuruluş
+ * kendi mail'ini görürdü) OKUNMAZ — tüm kuruluşlar için aynı, platform
+ * seviyesinde bir bildirimdir.
  */
+const MYK_OPPORTUNITY_NOTIFICATION_RECIPIENTS = ["info@mesmermym.com", "orhun@mesmermym.com"];
+
 async function notifyMykOpportunity(
   supabase: Awaited<ReturnType<typeof createClient>>,
   params: {
@@ -144,28 +151,27 @@ async function notifyMykOpportunity(
     actorUserId: string;
   },
 ) {
-  const { data: settings } = await supabase
-    .from("notification_settings")
-    .select("myk_firsat_bildirim_alicilari")
-    .eq("organization_id", params.organizationId)
-    .maybeSingle();
-
-  const alicilar = settings?.myk_firsat_bildirim_alicilari ?? [];
-  if (alicilar.length === 0) return;
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("display_name")
+    .eq("id", params.organizationId)
+    .single();
 
   const companyUnvan = escapeHtml(params.companyUnvan);
   const subeAdi = escapeHtml(params.subeAdi);
   const baslik = escapeHtml(params.baslik);
+  const kuruluşAdi = escapeHtml(organization?.display_name ?? "");
   const html = `
     <p>Bir denetimde MYK belgelendirme fırsatı tespit edildi.</p>
     <p><strong>İşletme:</strong> ${companyUnvan}${subeAdi ? ` — ${subeAdi}` : ""}</p>
     <p><strong>Uygunsuzluk:</strong> ${baslik}</p>
+    <p><strong>Denetimi yapan kuruluş:</strong> ${kuruluşAdi}</p>
   `.trim();
 
   await sendAndLogEmail(supabase, {
     organizationId: params.organizationId,
     findingId: params.findingId,
-    to: alicilar,
+    to: MYK_OPPORTUNITY_NOTIFICATION_RECIPIENTS,
     subject: `MYK Belgelendirme Fırsatı — ${params.companyUnvan}`,
     html,
     gonderenUserId: params.actorUserId,
