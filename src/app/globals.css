@@ -1,0 +1,218 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-mesmer-primary: var(--mesmer-primary);
+  --color-mesmer-primary-hover: var(--mesmer-primary-hover);
+  --color-mesmer-primary-light: var(--mesmer-primary-light);
+  --color-mesmer-secondary: var(--mesmer-secondary);
+  --color-mesmer-secondary-text-on-light: var(--mesmer-secondary-text-on-light);
+  --color-mesmer-accent: var(--mesmer-accent);
+  --color-mesmer-background: var(--mesmer-background);
+  --color-mesmer-surface: var(--mesmer-surface);
+  --color-mesmer-border: var(--mesmer-border);
+  --color-mesmer-text: var(--mesmer-text);
+  --color-mesmer-text-muted: var(--mesmer-text-muted);
+
+  --color-risk-compliant: var(--risk-compliant);
+  --color-risk-low: var(--risk-low);
+  --color-risk-low-bg: var(--risk-low-bg);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-medium-bg: var(--risk-medium-bg);
+  --color-risk-high: var(--risk-high);
+  --color-risk-high-bg: var(--risk-high-bg);
+  --color-risk-critical: var(--risk-critical);
+  --color-risk-critical-bg: var(--risk-critical-bg);
+  --color-risk-not-applicable: var(--risk-not-applicable);
+  --color-risk-not-applicable-bg: var(--risk-not-applicable-bg);
+  --color-risk-not-checked: var(--risk-not-checked);
+  --color-risk-not-checked-bg: var(--risk-not-checked-bg);
+}
+
+:root {
+  /*
+   * MESMER MYM kurumsal kimlik tokenları.
+   * Değerler, sağlanan orijinal logo dosyasından (MESMER-LOGO.JPG) piksel
+   * analiziyle ölçülmüştür — tahmin edilmemiştir. Bkz. CLAUDE.md "Kurumsal Kimlik".
+   */
+  --mesmer-primary: #054f90;
+  --mesmer-primary-hover: #043e70;
+  --mesmer-primary-light: #ebf1f6;
+  --mesmer-secondary: #fcb042;
+  --mesmer-accent: var(--mesmer-secondary);
+  --mesmer-background: #f8f9fa;
+  --mesmer-surface: #ffffff;
+  --mesmer-border: #e5e7eb;
+  --mesmer-text: #1f2937;
+  --mesmer-text-muted: #667085;
+  /* Turuncunun beyaz zeminde metin/ikon olarak tek başına kullanılabilecek,
+     WCAG AA'yı (4.76:1) karşılayan koyulaştırılmış tonu. */
+  --mesmer-secondary-text-on-light: #976a28;
+
+  /* Risk ve sonuç renkleri: marka renklerinden bağımsız, sabit. Her zaman
+     ikon + yazı ile birlikte kullanılır, yalnızca renkle ifade edilmez. */
+  --risk-compliant: #15803d;
+  --risk-low: #a16207;
+  --risk-low-bg: #fef3c7;
+  --risk-medium: #c2410c;
+  --risk-medium-bg: #ffedd5;
+  --risk-high: #dc2626;
+  --risk-high-bg: #fee2e2;
+  --risk-critical: #7f1d1d;
+  --risk-critical-bg: #fecaca;
+  --risk-not-applicable: #6b7280;
+  --risk-not-applicable-bg: #f3f4f6;
+  --risk-not-checked: #475569;
+  --risk-not-checked-bg: #e2e8f0;
+
+  --background: var(--mesmer-background);
+  --foreground: var(--mesmer-text);
+  --card: var(--mesmer-surface);
+  --card-foreground: var(--mesmer-text);
+  --popover: var(--mesmer-surface);
+  --popover-foreground: var(--mesmer-text);
+  --primary: var(--mesmer-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--mesmer-secondary);
+  --secondary-foreground: var(--mesmer-text);
+  --muted: #eef1f4;
+  --muted-foreground: var(--mesmer-text-muted);
+  --accent: var(--mesmer-primary-light);
+  --accent-foreground: var(--mesmer-primary);
+  --destructive: var(--risk-high);
+  --border: var(--mesmer-border);
+  --input: var(--mesmer-border);
+  --ring: var(--mesmer-primary);
+  --chart-1: var(--mesmer-primary);
+  --chart-2: var(--mesmer-secondary);
+  --chart-3: var(--risk-high);
+  --chart-4: var(--risk-compliant);
+  --chart-5: var(--mesmer-text-muted);
+  --radius: 0.625rem;
+  --sidebar: var(--mesmer-surface);
+  --sidebar-foreground: var(--mesmer-text);
+  --sidebar-primary: var(--mesmer-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--mesmer-primary-light);
+  --sidebar-accent-foreground: var(--mesmer-primary);
+  --sidebar-border: var(--mesmer-border);
+  --sidebar-ring: var(--mesmer-primary);
+}
+
+.dark {
+  /* Koyu zeminde okunabilirliği koruyan, göz yormayan özel tonlar. */
+  --mesmer-primary: #5c8db7;
+  --mesmer-primary-hover: #7ba5c8;
+  --mesmer-primary-light: #16232f;
+  --mesmer-secondary: #fcb042;
+  --mesmer-accent: var(--mesmer-secondary);
+  --mesmer-background: #101317;
+  --mesmer-surface: #1a1e24;
+  --mesmer-border: #2a2f37;
+  --mesmer-text: #f3f4f6;
+  --mesmer-text-muted: #9ca3af;
+  --mesmer-secondary-text-on-light: #f5c476;
+
+  --risk-compliant: #4ade80;
+  --risk-low: #fbbf24;
+  --risk-low-bg: #3f2f0c;
+  --risk-medium: #fb923c;
+  --risk-medium-bg: #452008;
+  --risk-high: #f87171;
+  --risk-high-bg: #450a0a;
+  --risk-critical: #fca5a5;
+  --risk-critical-bg: #3f0d0d;
+  --risk-not-applicable: #9ca3af;
+  --risk-not-applicable-bg: #262b33;
+  --risk-not-checked: #93a5bd;
+  --risk-not-checked-bg: #1c2733;
+
+  --background: var(--mesmer-background);
+  --foreground: var(--mesmer-text);
+  --card: var(--mesmer-surface);
+  --card-foreground: var(--mesmer-text);
+  --popover: var(--mesmer-surface);
+  --popover-foreground: var(--mesmer-text);
+  --primary: var(--mesmer-primary);
+  --primary-foreground: #0a0d10;
+  --secondary: #2a2f37;
+  --secondary-foreground: var(--mesmer-text);
+  --muted: #1f242b;
+  --muted-foreground: var(--mesmer-text-muted);
+  --accent: var(--mesmer-primary-light);
+  --accent-foreground: var(--mesmer-primary);
+  --destructive: var(--risk-high);
+  --border: var(--mesmer-border);
+  --input: var(--mesmer-border);
+  --ring: var(--mesmer-primary);
+  --chart-1: var(--mesmer-primary);
+  --chart-2: var(--mesmer-secondary);
+  --chart-3: var(--risk-high);
+  --chart-4: var(--risk-compliant);
+  --chart-5: var(--mesmer-text-muted);
+  --sidebar: var(--mesmer-surface);
+  --sidebar-foreground: var(--mesmer-text);
+  --sidebar-primary: var(--mesmer-primary);
+  --sidebar-primary-foreground: #0a0d10;
+  --sidebar-accent: var(--mesmer-primary-light);
+  --sidebar-accent-foreground: var(--mesmer-primary);
+  --sidebar-border: var(--mesmer-border);
+  --sidebar-ring: var(--mesmer-primary);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

@@ -1,0 +1,40 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Logo } from "@/components/brand/logo";
+import { NAV_ITEMS, isNavItemActive } from "@/lib/nav";
+
+export function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-mesmer-border bg-mesmer-surface md:flex">
+      <div className="flex h-16 items-center border-b border-mesmer-border px-4">
+        <Logo variant="full" priority />
+      </div>
+      <nav className="flex flex-1 flex-col gap-1 p-3">
+        {NAV_ITEMS.map((item) => {
+          const active = isNavItemActive(pathname, item.href);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "bg-mesmer-primary-light text-mesmer-primary"
+                  : "text-mesmer-text-muted hover:bg-mesmer-primary-light hover:text-mesmer-primary",
+              )}
+            >
+              <Icon className="size-4" />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}

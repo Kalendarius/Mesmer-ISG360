@@ -1,0 +1,234 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { requireUserContext } from "@/lib/auth/session";
+import { logAudit } from "@/lib/audit/log";
+import { sendAndLogEmail } from "@/lib/email/send-email";
+import { escapeHtml } from "@/lib/utils/html";
+import {
+  findingQuickSchema,
+  inspectionHeaderSchema,
+  responseUpdateSchema,
+  toFindingRecord,
+  toInspectionHeaderRecord,
+  type FindingQuickInput,
+  type InspectionHeaderInput,
+  type ResponseUpdateInput,
+} from "@/lib/validation/inspection";
+
+export interface ActionResult {
+  error?: string;
+}
+
+function assertWriteAccess(role: string): string | null {
+  if (role !== "organization_admin" && role !== "safety_expert") {
+    return "Bu işlem için yetkiniz yok.";
+  }
+  return null;
+}
+
+export async function updateResponseAction(
+  inspectionId: string,
+  responseId: string,
+  input: ResponseUpdateInput,
+): Promise<ActionResult> {
+  const context = await requireUserContext();
+  const denied = assertWriteAccess(context.activeOrganization.role);
+  if (denied) return { error: denied };
+
+  const parsed = responseUpdateSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Geçersiz bilgi." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("inspection_responses")
+    .update({ sonuc: parsed.data.sonuc, not_metni: parsed.data.not_metni || null })
+    .eq("id", responseId);
+
+  if (error) return { error: "Cevap kaydedilemedi: " + error.message };
+
+  revalidatePath(`/denetimler/${inspectionId}`);
+  return {};
+}
+
+/**
+ * "Uygun Değil" seçimi ile uygunsuzluk oluşturmayı tek işlemde birleştirir:
+ * kullanıcı formu iptal ederse cevap "Uygun Değil" olarak işaretlenmez.
+ */
+export async function markNonCompliantAction(
+  inspectionId: string,
+  responseId: string,
+  input: FindingQuickInput,
+): Promise<ActionResult> {
+  const context = await requireUserContext();
+  const denied = assertWriteAccess(context.activeOrganization.role);
+  if (denied) return { error: denied };
+
+  const parsed = findingQuickSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Geçersiz bilgi." };
+
+  const supabase = await createClient();
+  const organizationId = context.activeOrganization.organizationId;
+
+  const { data: inspection } = await supabase
+    .from("inspections")
+    .select("company_id, branch_id, companies(unvan), company_branches(sube_adi)")
+    .eq("id", inspectionId)
+    .single();
+  if (!inspection) return { error: "Denetim bulunamadı." };
+
+  const { data: response } = await supabase
+    .from("inspection_responses")
+    .select("regulation_metin_snapshot, checklist_items(is_certification_opportunity)")
+    .eq("id", responseId)
+    .single();
+
+  const { data: finding, error: findingError } = await supabase
+    .from("findings")
+    .insert({
+      ...toFindingRecord(parsed.data),
+      organization_id: organizationId,
+      inspection_id: inspectionId,
+      inspection_response_id: responseId,
+      company_id: inspection.company_id,
+      branch_id: inspection.branch_id,
+      regulation_metin_snapshot: response?.regulation_metin_snapshot ?? null,
+      durum: "open",
+      created_by: context.userId,
+      updated_by: context.userId,
+    })
+    .select("id")
+    .single();
+
+  if (findingError || !finding) return { error: "Uygunsuzluk kaydedilemedi: " + findingError?.message };
+
+  const { error: responseError } = await supabase
+    .from("inspection_responses")
+    .update({ sonuc: "non_compliant" })
+    .eq("id", responseId);
+
+  if (responseError) return { error: "Cevap güncellenemedi: " + responseError.message };
+
+  if (response?.checklist_items?.is_certification_opportunity) {
+    await notifyMykOpportunity(supabase, {
+      organizationId,
+      findingId: finding.id,
+      companyUnvan: inspection.companies?.unvan ?? "",
+      subeAdi: inspection.company_branches?.sube_adi ?? "",
+      baslik: parsed.data.baslik,
+      actorUserId: context.userId,
+    });
+  }
+
+  revalidatePath(`/denetimler/${inspectionId}`);
+  return {};
+}
+
+/**
+ * MYK belgelendirme fırsatı dahili bildirimi: is_certification_opportunity
+ * işaretli bir maddeden uygunsuzluk doğduğunda, işletme yetkilisinden
+ * bağımsız olarak kuruluşun dahili alıcı listesine gider (bkz. CLAUDE.md →
+ * "Beklenen özellik: MYK belgelendirme fırsatı bildirimi"). Alıcı
+ * tanımlanmamışsa (notification_settings yok veya liste boş) sessizce
+ * atlanır — bu, hata değil, henüz yapılandırılmamış bir özelliktir.
+ */
+async function notifyMykOpportunity(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  params: {
+    organizationId: string;
+    findingId: string;
+    companyUnvan: string;
+    subeAdi: string;
+    baslik: string;
+    actorUserId: string;
+  },
+) {
+  const { data: settings } = await supabase
+    .from("notification_settings")
+    .select("myk_firsat_bildirim_alicilari")
+    .eq("organization_id", params.organizationId)
+    .maybeSingle();
+
+  const alicilar = settings?.myk_firsat_bildirim_alicilari ?? [];
+  if (alicilar.length === 0) return;
+
+  const companyUnvan = escapeHtml(params.companyUnvan);
+  const subeAdi = escapeHtml(params.subeAdi);
+  const baslik = escapeHtml(params.baslik);
+  const html = `
+    <p>Bir denetimde MYK belgelendirme fırsatı tespit edildi.</p>
+    <p><strong>İşletme:</strong> ${companyUnvan}${subeAdi ? ` — ${subeAdi}` : ""}</p>
+    <p><strong>Uygunsuzluk:</strong> ${baslik}</p>
+  `.trim();
+
+  await sendAndLogEmail(supabase, {
+    organizationId: params.organizationId,
+    findingId: params.findingId,
+    to: alicilar,
+    subject: `MYK Belgelendirme Fırsatı — ${params.companyUnvan}`,
+    html,
+    gonderenUserId: params.actorUserId,
+  });
+}
+
+export async function updateInspectionHeaderAction(
+  inspectionId: string,
+  input: InspectionHeaderInput,
+): Promise<ActionResult> {
+  const context = await requireUserContext();
+  const denied = assertWriteAccess(context.activeOrganization.role);
+  if (denied) return { error: denied };
+
+  const parsed = inspectionHeaderSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Geçersiz bilgi." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("inspections")
+    .update({ ...toInspectionHeaderRecord(parsed.data), updated_by: context.userId })
+    .eq("id", inspectionId);
+
+  if (error) return { error: "Denetim güncellenemedi: " + error.message };
+
+  revalidatePath(`/denetimler/${inspectionId}`);
+  return {};
+}
+
+export async function completeInspectionAction(inspectionId: string): Promise<ActionResult> {
+  const context = await requireUserContext();
+  const denied = assertWriteAccess(context.activeOrganization.role);
+  if (denied) return { error: denied };
+
+  const supabase = await createClient();
+
+  const { data: responses } = await supabase
+    .from("inspection_responses")
+    .select("id, sonuc, checklist_item_id, checklist_items(zorunlu)")
+    .eq("inspection_id", inspectionId);
+
+  const unansweredRequired = (responses ?? []).filter((r) => r.checklist_items?.zorunlu && !r.sonuc);
+  if (unansweredRequired.length > 0) {
+    return { error: `${unansweredRequired.length} zorunlu madde henüz cevaplanmadı.` };
+  }
+
+  const { error } = await supabase
+    .from("inspections")
+    .update({ status: "completed", completed_at: new Date().toISOString(), updated_by: context.userId })
+    .eq("id", inspectionId);
+
+  if (error) return { error: "Denetim tamamlanamadı: " + error.message };
+
+  await logAudit(supabase, {
+    organizationId: context.activeOrganization.organizationId,
+    actorUserId: context.userId,
+    action: "inspection.completed",
+    entityType: "inspections",
+    entityId: inspectionId,
+    yeniVeri: { status: "completed" },
+  });
+
+  revalidatePath(`/denetimler/${inspectionId}`);
+  revalidatePath("/denetimler");
+  return {};
+}
