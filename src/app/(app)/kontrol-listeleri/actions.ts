@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireUserContext, hasWriteAccess } from "@/lib/auth/session";
+import { MESMER_ORGANIZATION_ID } from "@/lib/constants";
 import { templateSchema, toTemplateRecord, type TemplateInput } from "@/lib/validation/checklist";
 
 export interface ActionResult {
@@ -14,6 +15,9 @@ export async function createTemplateAction(input: TemplateInput): Promise<Action
   const context = await requireUserContext();
   if (!hasWriteAccess(context.activeOrganization.role)) {
     return { error: "Bu işlem için yetkiniz yok." };
+  }
+  if (context.activeOrganization.organizationId !== MESMER_ORGANIZATION_ID) {
+    return { error: "Yeni kontrol listesi şablonu yalnızca MESMER tarafından oluşturulabilir." };
   }
 
   const parsed = templateSchema.safeParse(input);

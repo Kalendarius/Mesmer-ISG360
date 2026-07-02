@@ -67,8 +67,8 @@ export default async function DenetimDoldurmaPage({ params }: PageProps) {
           <div>
             <CardTitle className="text-lg">{inspection.companies?.unvan}</CardTitle>
             <p className="text-sm text-mesmer-text-muted">
-              {inspection.company_branches?.sube_adi} · {formatDate(inspection.denetim_tarihi)} ·{" "}
-              {INSPECTION_TYPE_LABELS[inspection.denetim_turu as InspectionType]}
+              {inspection.company_branches?.sube_adi && `${inspection.company_branches.sube_adi} · `}
+              {formatDate(inspection.denetim_tarihi)} · {INSPECTION_TYPE_LABELS[inspection.denetim_turu as InspectionType]}
             </p>
             <p className="text-sm text-mesmer-text-muted">
               Uzman: {uzman?.full_name ?? "—"}

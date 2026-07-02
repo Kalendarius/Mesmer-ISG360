@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-import { getResendClient } from "./resend";
+import { getSendGridClient } from "./sendgrid";
 
 interface SendEmailAttachment {
   filename: string;
@@ -25,6 +25,16 @@ export interface SendEmailResult {
   error?: string;
 }
 
+/** SendGrid hata gövdesinden (varsa) okunabilir bir mesaj çıkarır. */
+function extractSendGridErrorMessage(err: unknown): string {
+  if (err && typeof err === "object" && "response" in err) {
+    const body = (err as { response?: { body?: { errors?: { message?: string }[] } } }).response?.body;
+    const messages = body?.errors?.map((e) => e.message).filter(Boolean);
+    if (messages && messages.length > 0) return messages.join(" ");
+  }
+  return err instanceof Error ? err.message : "Bilinmeyen hata.";
+}
+
 /**
  * E-posta gönderir ve sonucu (başarılı/başarısız) `email_logs`'a yazar.
  * Gönderim başarısız olsa bile satır her zaman eklenir — sessizce yutulan
@@ -44,24 +54,23 @@ export async function sendAndLogEmail(
     hataMesaji = "EMAIL_FROM ortam değişkeni tanımlı değil.";
   } else {
     try {
-      const resend = getResendClient();
-      const { data, error } = await resend.emails.send({
+      const sgMail = getSendGridClient();
+      const [response] = await sgMail.send({
         from,
         to: params.to,
         cc: params.cc && params.cc.length > 0 ? params.cc : undefined,
         subject: params.subject,
         html: params.html,
-        attachments: params.attachments?.map((a) => ({ filename: a.filename, content: a.content })),
+        attachments: params.attachments?.map((a) => ({
+          filename: a.filename,
+          content: a.content.toString("base64"),
+          disposition: "attachment",
+        })),
       });
-      if (error) {
-        durum = "failed";
-        hataMesaji = error.message;
-      } else {
-        servisMesajId = data?.id ?? null;
-      }
+      servisMesajId = (response.headers["x-message-id"] as string | undefined) ?? null;
     } catch (err) {
       durum = "failed";
-      hataMesaji = err instanceof Error ? err.message : "Bilinmeyen hata.";
+      hataMesaji = extractSendGridErrorMessage(err);
     }
   }
 

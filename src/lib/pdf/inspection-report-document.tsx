@@ -119,10 +119,12 @@ export function InspectionReportDocument({
             <Text style={styles.infoLabel}>İşletme</Text>
             <Text style={styles.infoValue}>{data.company.unvan}</Text>
           </View>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Şube</Text>
-            <Text style={styles.infoValue}>{data.branch.subeAdi}</Text>
-          </View>
+          {data.branch && (
+            <View style={styles.infoBox}>
+              <Text style={styles.infoLabel}>Şube</Text>
+              <Text style={styles.infoValue}>{data.branch.subeAdi}</Text>
+            </View>
+          )}
           {data.company.vergiNo && (
             <View style={styles.infoBox}>
               <Text style={styles.infoLabel}>Vergi No</Text>
@@ -135,7 +137,7 @@ export function InspectionReportDocument({
               <Text style={styles.infoValue}>{data.company.tehlikeSinifiLabel}</Text>
             </View>
           )}
-          {data.branch.adres && (
+          {data.branch?.adres && (
             <View style={styles.infoBox}>
               <Text style={styles.infoLabel}>Adres</Text>
               <Text style={styles.infoValue}>

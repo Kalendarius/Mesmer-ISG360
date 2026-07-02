@@ -324,10 +324,8 @@ export type Database = {
           id: string
           is_active: boolean
           kisa_ad: string | null
-          nace_kodu: string | null
           notlar: string | null
           organization_id: string
-          sgk_sicil_no: string | null
           tehlike_sinifi: Database["public"]["Enums"]["hazard_class"] | null
           telefon: string | null
           unvan: string
@@ -346,10 +344,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           kisa_ad?: string | null
-          nace_kodu?: string | null
           notlar?: string | null
           organization_id: string
-          sgk_sicil_no?: string | null
           tehlike_sinifi?: Database["public"]["Enums"]["hazard_class"] | null
           telefon?: string | null
           unvan: string
@@ -368,10 +364,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           kisa_ad?: string | null
-          nace_kodu?: string | null
           notlar?: string | null
           organization_id?: string
-          sgk_sicil_no?: string | null
           tehlike_sinifi?: Database["public"]["Enums"]["hazard_class"] | null
           telefon?: string | null
           unvan?: string
@@ -721,7 +715,7 @@ export type Database = {
         Row: {
           aciklama: string | null
           baslik: string
-          branch_id: string
+          branch_id: string | null
           company_id: string
           created_at: string
           created_by: string | null
@@ -747,7 +741,7 @@ export type Database = {
         Insert: {
           aciklama?: string | null
           baslik: string
-          branch_id: string
+          branch_id?: string | null
           company_id: string
           created_at?: string
           created_by?: string | null
@@ -773,7 +767,7 @@ export type Database = {
         Update: {
           aciklama?: string | null
           baslik?: string
-          branch_id?: string
+          branch_id?: string | null
           company_id?: string
           created_at?: string
           created_by?: string | null
@@ -929,7 +923,7 @@ export type Database = {
         Row: {
           baslangic_saati: string | null
           bitis_saati: string | null
-          branch_id: string
+          branch_id: string | null
           checklist_template_version_id: string
           company_id: string
           completed_at: string | null
@@ -950,7 +944,7 @@ export type Database = {
         Insert: {
           baslangic_saati?: string | null
           bitis_saati?: string | null
-          branch_id: string
+          branch_id?: string | null
           checklist_template_version_id: string
           company_id: string
           completed_at?: string | null
@@ -971,7 +965,7 @@ export type Database = {
         Update: {
           baslangic_saati?: string | null
           bitis_saati?: string | null
-          branch_id?: string
+          branch_id?: string | null
           checklist_template_version_id?: string
           company_id?: string
           completed_at?: string | null

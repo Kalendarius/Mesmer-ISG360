@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { requireUserContext, hasWriteAccess } from "@/lib/auth/session";
-import { CompanyForm } from "../company-form";
+import { CompanyCreateForm } from "../company-create-form";
 
 export default async function YeniIsletmePage() {
   const context = await requireUserContext();
@@ -17,7 +17,7 @@ export default async function YeniIsletmePage() {
           <CardDescription>Yeni bir işletme kaydı oluşturun.</CardDescription>
         </CardHeader>
         <CardContent>
-          <CompanyForm />
+          <CompanyCreateForm />
         </CardContent>
       </Card>
     </div>

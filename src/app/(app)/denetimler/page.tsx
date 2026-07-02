@@ -103,7 +103,9 @@ export default async function DenetimlerPage({ searchParams }: PageProps) {
                     <Link href={`/denetimler/${i.id}`} className="font-medium text-mesmer-primary hover:underline">
                       {i.companies?.unvan}
                     </Link>
-                    <p className="text-xs text-mesmer-text-muted">{i.company_branches?.sube_adi}</p>
+                    {i.company_branches?.sube_adi && (
+                      <p className="text-xs text-mesmer-text-muted">{i.company_branches.sube_adi}</p>
+                    )}
                   </TableCell>
                   <TableCell>{formatDate(i.denetim_tarihi)}</TableCell>
                   <TableCell>{INSPECTION_TYPE_LABELS[i.denetim_turu as InspectionType]}</TableCell>

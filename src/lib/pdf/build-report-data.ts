@@ -80,7 +80,7 @@ export interface InspectionReportData {
     subeAdi: string;
     adres: string | null;
     ilIlce: string | null;
-  };
+  } | null;
   inspection: {
     denetimTuruLabel: string;
     denetimTarihi: string;
@@ -199,11 +199,13 @@ export async function buildInspectionReportData(
         : null,
       faaliyetKonusu: inspection.companies?.faaliyet_konusu ?? null,
     },
-    branch: {
-      subeAdi: inspection.company_branches?.sube_adi ?? "",
-      adres: inspection.company_branches?.adres ?? null,
-      ilIlce: [inspection.company_branches?.il, inspection.company_branches?.ilce].filter(Boolean).join(" / ") || null,
-    },
+    branch: inspection.company_branches
+      ? {
+          subeAdi: inspection.company_branches.sube_adi,
+          adres: inspection.company_branches.adres ?? null,
+          ilIlce: [inspection.company_branches.il, inspection.company_branches.ilce].filter(Boolean).join(" / ") || null,
+        }
+      : null,
     inspection: {
       denetimTuruLabel: INSPECTION_TYPE_LABELS[inspection.denetim_turu as InspectionType],
       denetimTarihi: formatDate(inspection.denetim_tarihi),

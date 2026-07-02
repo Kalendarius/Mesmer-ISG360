@@ -154,7 +154,9 @@ export default async function AnasayfaPage() {
                         </TableCell>
                         <TableCell>
                           <p>{f.companies?.unvan}</p>
-                          <p className="text-xs text-mesmer-text-muted">{f.company_branches?.sube_adi}</p>
+                          {f.company_branches?.sube_adi && (
+                            <p className="text-xs text-mesmer-text-muted">{f.company_branches.sube_adi}</p>
+                          )}
                         </TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center gap-1 text-sm font-medium ${riskVisual.textClassName}`}>

@@ -31,6 +31,11 @@ describe("inspectionCreateSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("şube seçilmeden de geçerli sayar (opsiyonel)", () => {
+    const result = inspectionCreateSchema.safeParse({ ...valid, branch_id: "" });
+    expect(result.success).toBe(true);
+  });
+
   it("geçersiz denetim_turu değerini reddeder", () => {
     const result = inspectionCreateSchema.safeParse({ ...valid, denetim_turu: "gecersiz" });
     expect(result.success).toBe(false);

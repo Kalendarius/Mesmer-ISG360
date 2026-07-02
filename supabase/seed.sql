@@ -116,16 +116,22 @@ values
 
 -- ============================================================
 -- ÖRNEK KONTROL LİSTESİ ŞABLONU (sorular özgündür, mevzuat değildir)
+-- Not: 0017 migration'ında pasifleştirilip 4 standart şablonla (Masa Başı /
+-- Saha-Ofis / Saha-Fabrika / Saha-Şantiye) değiştirildi; bu blok yalnızca
+-- lokal `db reset` sonrası da aynı geçmişin (is_active=false) yeniden
+-- üretilmesi için hâlâ burada — aşağıdaki placeholder şablonlar gerçek
+-- başlangıç içeriğidir.
 -- ============================================================
 
-insert into public.checklist_templates (id, organization_id, ad, sektor, faaliyet_konusu, denetim_turu)
+insert into public.checklist_templates (id, organization_id, ad, sektor, faaliyet_konusu, denetim_turu, is_active)
 values (
   '00000000-0000-0000-0000-000000000301',
   '00000000-0000-0000-0000-000000000001',
   'Genel İSG Denetimi (ÖRNEK ŞABLON)',
   'Genel',
   'Tüm sektörler',
-  'periyodik'
+  'periyodik',
+  false
 );
 
 insert into public.checklist_template_versions (id, checklist_template_id, organization_id, version_no, notes)
@@ -134,7 +140,7 @@ values (
   '00000000-0000-0000-0000-000000000301',
   '00000000-0000-0000-0000-000000000001',
   1,
-  'İlk sürüm — örnek/başlangıç şablonu.'
+  'İlk sürüm — örnek/başlangıç şablonu. (Pasif — bkz. 0017 migration.)'
 );
 
 insert into public.checklist_categories (id, checklist_template_version_id, organization_id, ad, sira_no)
@@ -221,3 +227,36 @@ values
     'Personelin ilgili meslek standardında MYK Mesleki Yeterlilik Belgesi almasının sağlanması.',
     'high', true, false, true
   );
+
+-- ============================================================
+-- STANDART KONTROL LİSTESİ ŞABLONLARI (placeholder — içerik hazırlanıyor)
+-- ============================================================
+
+insert into public.checklist_templates (id, organization_id, ad, sektor, faaliyet_konusu, denetim_turu)
+values
+  ('00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000001', 'Masa Başı Evraksal Denetim', 'Genel', 'Tüm sektörler', null),
+  ('00000000-0000-0000-0000-000000000502', '00000000-0000-0000-0000-000000000001', 'Saha Denetimi - Ofis Denetimi', 'Genel', 'Tüm sektörler', null),
+  ('00000000-0000-0000-0000-000000000503', '00000000-0000-0000-0000-000000000001', 'Saha Denetimi - Fabrika Denetimi', 'Genel', 'Tüm sektörler', null),
+  ('00000000-0000-0000-0000-000000000504', '00000000-0000-0000-0000-000000000001', 'Saha Denetimi - Şantiye Denetimi', 'Genel', 'Tüm sektörler', null);
+
+insert into public.checklist_template_versions (id, checklist_template_id, organization_id, version_no, notes)
+values
+  ('00000000-0000-0000-0000-000000000511', '00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000001', 1, 'Placeholder — içerik hazırlanıyor.'),
+  ('00000000-0000-0000-0000-000000000512', '00000000-0000-0000-0000-000000000502', '00000000-0000-0000-0000-000000000001', 1, 'Placeholder — içerik hazırlanıyor.'),
+  ('00000000-0000-0000-0000-000000000513', '00000000-0000-0000-0000-000000000503', '00000000-0000-0000-0000-000000000001', 1, 'Placeholder — içerik hazırlanıyor.'),
+  ('00000000-0000-0000-0000-000000000514', '00000000-0000-0000-0000-000000000504', '00000000-0000-0000-0000-000000000001', 1, 'Placeholder — içerik hazırlanıyor.');
+
+insert into public.checklist_categories (id, checklist_template_version_id, organization_id, ad, sira_no)
+values
+  ('00000000-0000-0000-0000-000000000521', '00000000-0000-0000-0000-000000000511', '00000000-0000-0000-0000-000000000001', 'Genel', 1),
+  ('00000000-0000-0000-0000-000000000522', '00000000-0000-0000-0000-000000000512', '00000000-0000-0000-0000-000000000001', 'Genel', 1),
+  ('00000000-0000-0000-0000-000000000523', '00000000-0000-0000-0000-000000000513', '00000000-0000-0000-0000-000000000001', 'Genel', 1),
+  ('00000000-0000-0000-0000-000000000524', '00000000-0000-0000-0000-000000000514', '00000000-0000-0000-0000-000000000001', 'Genel', 1);
+
+insert into public.checklist_items
+  (checklist_template_version_id, checklist_category_id, organization_id, soru, sira_no, zorunlu, fotograf_gerekli)
+values
+  ('00000000-0000-0000-0000-000000000511', '00000000-0000-0000-0000-000000000521', '00000000-0000-0000-0000-000000000001', 'İçerik hazırlanıyor — bu kontrol listesi yakında MESMER tarafından doldurulacaktır.', 1, false, false),
+  ('00000000-0000-0000-0000-000000000512', '00000000-0000-0000-0000-000000000522', '00000000-0000-0000-0000-000000000001', 'İçerik hazırlanıyor — bu kontrol listesi yakında MESMER tarafından doldurulacaktır.', 1, false, false),
+  ('00000000-0000-0000-0000-000000000513', '00000000-0000-0000-0000-000000000523', '00000000-0000-0000-0000-000000000001', 'İçerik hazırlanıyor — bu kontrol listesi yakında MESMER tarafından doldurulacaktır.', 1, false, false),
+  ('00000000-0000-0000-0000-000000000514', '00000000-0000-0000-0000-000000000524', '00000000-0000-0000-0000-000000000001', 'İçerik hazırlanıyor — bu kontrol listesi yakında MESMER tarafından doldurulacaktır.', 1, false, false);

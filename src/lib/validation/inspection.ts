@@ -5,7 +5,7 @@ const optionalString = z.string().optional().or(z.literal(""));
 
 export const inspectionCreateSchema = z.object({
   company_id: z.string().min(1, "İşletme seçimi zorunludur."),
-  branch_id: z.string().min(1, "Şube seçimi zorunludur."),
+  branch_id: optionalString,
   checklist_template_id: z.string().min(1, "Kontrol listesi seçimi zorunludur."),
   denetim_turu: z.enum(INSPECTION_TYPES),
   denetim_tarihi: z.string().min(1, "Denetim tarihi zorunludur."),

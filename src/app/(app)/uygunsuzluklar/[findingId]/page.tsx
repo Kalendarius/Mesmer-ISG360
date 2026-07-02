@@ -91,7 +91,9 @@ export default async function UygunsuzlukDetayPage({ params }: PageProps) {
           <div>
             <CardTitle className="text-lg">{finding.baslik}</CardTitle>
             <p className="text-sm text-mesmer-text-muted">
-              {finding.companies?.unvan} · {finding.company_branches?.sube_adi}
+              {finding.company_branches?.sube_adi
+                ? `${finding.companies?.unvan} · ${finding.company_branches.sube_adi}`
+                : finding.companies?.unvan}
             </p>
             {finding.inspections && (
               <Link

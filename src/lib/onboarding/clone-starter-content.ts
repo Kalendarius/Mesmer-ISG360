@@ -1,14 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-
-/**
- * MESMER'in kendi kuruluşu — sistemdeki gerçek mevzuat metinlerinin
- * (mevzuat.gov.tr kaynaklı, kamu malı, telif sorunu yok) ve örnek kontrol
- * listesi şablonunun kaynağı. Yeni kayıt olan her kuruluşa başlangıç
- * içeriği olarak buradan kopyalanır (bkz. seed.sql).
- */
-const STARTER_CONTENT_SOURCE_ORG_ID = "00000000-0000-0000-0000-000000000001";
+import { MESMER_ORGANIZATION_ID as STARTER_CONTENT_SOURCE_ORG_ID } from "@/lib/constants";
 
 /**
  * Yeni kayıt olan bir kuruluşa MESMER'in gerçek mevzuat kütüphanesinin ve

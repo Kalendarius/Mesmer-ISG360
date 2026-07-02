@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
 import { requireUserContext, hasWriteAccess } from "@/lib/auth/session";
+import { MESMER_ORGANIZATION_ID } from "@/lib/constants";
 import { INSPECTION_TYPE_LABELS, type InspectionType } from "@/lib/utils/enums";
 
 interface PageProps {
@@ -21,7 +22,9 @@ interface PageProps {
 export default async function KontrolListeleriPage({ searchParams }: PageProps) {
   const context = await requireUserContext();
   const { durum } = await searchParams;
-  const canWrite = hasWriteAccess(context.activeOrganization.role);
+  const canWrite =
+    hasWriteAccess(context.activeOrganization.role) &&
+    context.activeOrganization.organizationId === MESMER_ORGANIZATION_ID;
   const supabase = await createClient();
 
   let query = supabase

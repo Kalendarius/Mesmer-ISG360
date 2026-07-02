@@ -46,7 +46,7 @@ export async function createInspectionAction(input: InspectionCreateInput): Prom
     .insert({
       organization_id: organizationId,
       company_id: parsed.data.company_id,
-      branch_id: parsed.data.branch_id,
+      branch_id: parsed.data.branch_id || null,
       checklist_template_version_id: version.id,
       denetim_turu: parsed.data.denetim_turu,
       denetim_tarihi: parsed.data.denetim_tarihi,

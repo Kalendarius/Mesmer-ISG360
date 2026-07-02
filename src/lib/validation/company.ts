@@ -14,8 +14,6 @@ export const companySchema = z.object({
   unvan: z.string().min(1, "Ticari unvan zorunludur."),
   kisa_ad: optionalString,
   vergi_no: optionalString,
-  sgk_sicil_no: optionalString,
-  nace_kodu: optionalString,
   tehlike_sinifi: z.enum(HAZARD_CLASSES).optional(),
   faaliyet_konusu: optionalString,
   calisan_sayisi: optionalNumericString,
@@ -54,6 +52,30 @@ export const contactSchema = z.object({
 });
 export type ContactInput = z.infer<typeof contactSchema>;
 
+/** İşletme kaydı tamamlanmadan doldurulması zorunlu 3 sabit yetkili rolü. */
+export const MANDATORY_CONTACT_ROLES = [
+  { key: "isveren", label: "İşveren" },
+  { key: "ik_yetkilisi", label: "İK Yetkilisi" },
+  { key: "uretim_sef", label: "Üretim Mühendisi / Şantiye Şefi" },
+] as const;
+export type MandatoryContactRoleKey = (typeof MANDATORY_CONTACT_ROLES)[number]["key"];
+
+const mandatoryContactFieldSchema = z.object({
+  ad_soyad: z.string().min(1, "Ad soyad zorunludur."),
+  eposta: optionalEmail,
+  telefon: optionalString,
+});
+export type MandatoryContactFieldInput = z.infer<typeof mandatoryContactFieldSchema>;
+
+export const companyCreateSchema = companySchema.extend({
+  yetkililer: z.object({
+    isveren: mandatoryContactFieldSchema,
+    ik_yetkilisi: mandatoryContactFieldSchema,
+    uretim_sef: mandatoryContactFieldSchema,
+  }),
+});
+export type CompanyCreateInput = z.infer<typeof companyCreateSchema>;
+
 function toNullableInt(value: string | undefined): number | null {
   if (!value || value === "") return null;
   const n = Number(value);
@@ -76,8 +98,6 @@ export function toCompanyRecord(input: CompanyInput) {
     unvan: input.unvan,
     kisa_ad: nullIfEmpty(input.kisa_ad),
     vergi_no: nullIfEmpty(input.vergi_no),
-    sgk_sicil_no: nullIfEmpty(input.sgk_sicil_no),
-    nace_kodu: nullIfEmpty(input.nace_kodu),
     tehlike_sinifi: input.tehlike_sinifi ?? null,
     faaliyet_konusu: nullIfEmpty(input.faaliyet_konusu),
     calisan_sayisi: toNullableInt(input.calisan_sayisi),
@@ -116,4 +136,21 @@ export function toContactRecord(input: ContactInput) {
     ana_yetkili: input.ana_yetkili,
     is_active: input.is_active,
   };
+}
+
+/** İşletme oluşturma formundaki 3 sabit yetkili alanını company_contacts satırlarına çevirir. */
+export function toMandatoryContactRecords(input: CompanyCreateInput) {
+  return MANDATORY_CONTACT_ROLES.map(({ key, label }) => {
+    const c = input.yetkililer[key];
+    return {
+      branch_id: null,
+      ad_soyad: c.ad_soyad,
+      gorev: label,
+      eposta: nullIfEmpty(c.eposta),
+      telefon: nullIfEmpty(c.telefon),
+      bildirim_alsin: true,
+      ana_yetkili: key === "isveren",
+      is_active: true,
+    };
+  });
 }

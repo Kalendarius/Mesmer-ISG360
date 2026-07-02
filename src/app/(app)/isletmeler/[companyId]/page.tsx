@@ -96,14 +96,6 @@ export default async function IsletmeDetayPage({ params }: PageProps) {
               <dd className="font-medium text-mesmer-text">{company.vergi_no ?? "—"}</dd>
             </div>
             <div>
-              <dt className="text-mesmer-text-muted">SGK Sicil No</dt>
-              <dd className="font-medium text-mesmer-text">{company.sgk_sicil_no ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-mesmer-text-muted">NACE Kodu</dt>
-              <dd className="font-medium text-mesmer-text">{company.nace_kodu ?? "—"}</dd>
-            </div>
-            <div>
               <dt className="text-mesmer-text-muted">Tehlike Sınıfı</dt>
               <dd className="font-medium text-mesmer-text">
                 {company.tehlike_sinifi ? HAZARD_CLASS_LABELS[company.tehlike_sinifi as HazardClass] : "—"}

@@ -12,14 +12,14 @@
 - **Supabase** — Postgres, Auth, Storage, Row Level Security
 - **Zod** + **React Hook Form**
 - **@react-pdf/renderer** (sunucu taraflı PDF üretimi)
-- **Resend** (sunucu taraflı e-posta)
+- **SendGrid** (sunucu taraflı e-posta)
 - **Vitest** (unit) + **Playwright** (e2e)
 
 ## Ön Koşullar
 
 - Node.js 20+ (bu makinede `winget install OpenJS.NodeJS.LTS` ile kuruldu, v24)
 - Docker Desktop + WSL2 (yerel Supabase stack'i için; bu makinede kurulu)
-- Bir Resend hesabı ve doğrulanmış gönderici domaini (e-posta gönderimi için, Teslim 9)
+- Bir SendGrid hesabı ve doğrulanmış gönderici domaini (e-posta gönderimi için, Teslim 9)
 
 ## Kurulum
 

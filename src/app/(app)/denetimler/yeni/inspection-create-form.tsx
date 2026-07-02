@@ -137,21 +137,22 @@ export function InspectionCreateForm({
           {errors.company_id && <p className="text-sm text-risk-high">{errors.company_id.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="branch_id">Şube *</Label>
+          <Label htmlFor="branch_id">Şube</Label>
           <Controller
             control={control}
             name="branch_id"
             render={({ field }) => (
               <Select
-                value={field.value ?? ""}
-                onValueChange={field.onChange}
-                items={branchItems}
+                value={field.value || "yok"}
+                onValueChange={(v) => field.onChange(v === "yok" ? "" : v)}
+                items={{ yok: "Şube yok (işletme geneli)", ...branchItems }}
                 disabled={!selectedCompanyId}
               >
                 <SelectTrigger id="branch_id" className="w-full">
                   <SelectValue placeholder={selectedCompanyId ? "Seçiniz" : "Önce işletme seçin"} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="yok">Şube yok (işletme geneli)</SelectItem>
                   {availableBranches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.sube_adi}

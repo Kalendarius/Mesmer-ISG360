@@ -14,16 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { companySchema, type CompanyInput } from "@/lib/validation/company";
+import { companyCreateSchema, MANDATORY_CONTACT_ROLES, type CompanyCreateInput } from "@/lib/validation/company";
 import { HAZARD_CLASSES, HAZARD_CLASS_LABELS } from "@/lib/utils/enums";
-import { updateCompanyAction } from "./actions";
+import { createCompanyAction } from "./actions";
 
-interface CompanyFormProps {
-  companyId: string;
-  defaultValues: Partial<CompanyInput>;
-}
-
-export function CompanyForm({ companyId, defaultValues }: CompanyFormProps) {
+export function CompanyCreateForm() {
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -32,15 +27,15 @@ export function CompanyForm({ companyId, defaultValues }: CompanyFormProps) {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<CompanyInput>({
-    resolver: zodResolver(companySchema),
-    defaultValues: { is_active: true, ...defaultValues },
+  } = useForm<CompanyCreateInput>({
+    resolver: zodResolver(companyCreateSchema),
+    defaultValues: { is_active: true },
   });
 
-  const onSubmit = (data: CompanyInput) => {
+  const onSubmit = (data: CompanyCreateInput) => {
     setFormError(null);
     startTransition(async () => {
-      const result = await updateCompanyAction(companyId, data);
+      const result = await createCompanyAction(data);
       if (result?.error) setFormError(result.error);
     });
   };
@@ -109,10 +104,44 @@ export function CompanyForm({ companyId, defaultValues }: CompanyFormProps) {
         </div>
       </div>
 
+      <div className="space-y-4 border-t border-mesmer-border pt-6">
+        <div>
+          <h2 className="text-sm font-semibold text-mesmer-text">Yetkililer</h2>
+          <p className="text-sm text-mesmer-text-muted">
+            Aşağıdaki 3 yetkilinin bilgileri işletme kaydı için zorunludur.
+          </p>
+        </div>
+        {MANDATORY_CONTACT_ROLES.map(({ key, label }) => (
+          <div key={key} className="space-y-3 rounded-md border border-mesmer-border p-4">
+            <h3 className="text-sm font-medium text-mesmer-text">{label}</h3>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-1.5 sm:col-span-1">
+                <Label htmlFor={`yetkililer.${key}.ad_soyad`}>Ad Soyad *</Label>
+                <Input id={`yetkililer.${key}.ad_soyad`} {...register(`yetkililer.${key}.ad_soyad`)} />
+                {errors.yetkililer?.[key]?.ad_soyad && (
+                  <p className="text-sm text-risk-high">{errors.yetkililer[key]?.ad_soyad?.message}</p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`yetkililer.${key}.eposta`}>E-posta</Label>
+                <Input id={`yetkililer.${key}.eposta`} type="email" {...register(`yetkililer.${key}.eposta`)} />
+                {errors.yetkililer?.[key]?.eposta && (
+                  <p className="text-sm text-risk-high">{errors.yetkililer[key]?.eposta?.message}</p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`yetkililer.${key}.telefon`}>Telefon</Label>
+                <Input id={`yetkililer.${key}.telefon`} type="tel" {...register(`yetkililer.${key}.telefon`)} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {formError && <p className="text-sm text-risk-high">{formError}</p>}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+        {isPending ? "Kaydediliyor..." : "İşletmeyi Oluştur"}
       </Button>
     </form>
   );

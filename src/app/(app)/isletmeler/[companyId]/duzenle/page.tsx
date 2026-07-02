@@ -41,8 +41,6 @@ export default async function IsletmeDuzenlePage({ params }: PageProps) {
               unvan: company.unvan,
               kisa_ad: company.kisa_ad ?? "",
               vergi_no: company.vergi_no ?? "",
-              sgk_sicil_no: company.sgk_sicil_no ?? "",
-              nace_kodu: company.nace_kodu ?? "",
               tehlike_sinifi: company.tehlike_sinifi ?? undefined,
               faaliyet_konusu: company.faaliyet_konusu ?? "",
               calisan_sayisi: company.calisan_sayisi != null ? String(company.calisan_sayisi) : "",
