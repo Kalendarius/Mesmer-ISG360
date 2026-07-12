@@ -12,6 +12,7 @@ import {
 } from "@/lib/utils/enums";
 import { ResponseItem } from "./response-item";
 import { CompleteButton } from "./complete-button";
+import { DeleteInspectionButton } from "./delete-inspection-button";
 import { ReportsCard } from "./reports-card";
 import { PreviousOpenFindingsCard } from "./previous-open-findings-card";
 import { OfflineSyncProvider } from "./offline-sync-provider";
@@ -82,7 +83,12 @@ export default async function DenetimDoldurmaPage({ params }: PageProps) {
             <p className="text-xs text-mesmer-text-muted">
               {answeredCount}/{totalCount} madde cevaplandı
             </p>
-            {isDraft && canWrite && <CompleteButton inspectionId={inspection.id} />}
+            {isDraft && canWrite && (
+              <div className="flex items-center gap-2">
+                <DeleteInspectionButton inspectionId={inspection.id} />
+                <CompleteButton inspectionId={inspection.id} />
+              </div>
+            )}
           </div>
         </CardHeader>
         {inspection.genel_notlar && (

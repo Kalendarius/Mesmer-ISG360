@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireUserContext } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit/log";
@@ -237,4 +238,42 @@ export async function completeInspectionAction(inspectionId: string): Promise<Ac
   revalidatePath(`/denetimler/${inspectionId}`);
   revalidatePath("/denetimler");
   return {};
+}
+
+/** Yalnızca taslak (henüz tamamlanmamış) denetimler silinebilir — kayıt kalıcı silinmez, deleted_at işaretlenir. */
+export async function deleteInspectionAction(inspectionId: string): Promise<ActionResult> {
+  const context = await requireUserContext();
+  const denied = assertWriteAccess(context.activeOrganization.role);
+  if (denied) return { error: denied };
+
+  const supabase = await createClient();
+
+  const { data: inspection } = await supabase
+    .from("inspections")
+    .select("status")
+    .eq("id", inspectionId)
+    .eq("organization_id", context.activeOrganization.organizationId)
+    .is("deleted_at", null)
+    .single();
+
+  if (!inspection) return { error: "Denetim bulunamadı." };
+  if (inspection.status !== "draft") return { error: "Yalnızca taslak denetimler silinebilir." };
+
+  const { error } = await supabase
+    .from("inspections")
+    .update({ deleted_at: new Date().toISOString(), updated_by: context.userId })
+    .eq("id", inspectionId);
+
+  if (error) return { error: "Denetim silinemedi: " + error.message };
+
+  await logAudit(supabase, {
+    organizationId: context.activeOrganization.organizationId,
+    actorUserId: context.userId,
+    action: "inspection.deleted",
+    entityType: "inspections",
+    entityId: inspectionId,
+  });
+
+  revalidatePath("/denetimler");
+  redirect("/denetimler");
 }
