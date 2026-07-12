@@ -76,7 +76,7 @@ export default async function SablonDetayPage({ params }: PageProps) {
   return (
     <div className="space-y-6 p-4 md:p-6">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4">
           <div>
             <CardTitle className="text-lg">{template.ad}</CardTitle>
             <p className="text-sm text-mesmer-text-muted">
@@ -85,7 +85,7 @@ export default async function SablonDetayPage({ params }: PageProps) {
               {template.denetim_turu && ` · ${INSPECTION_TYPE_LABELS[template.denetim_turu as InspectionType]}`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant={template.is_active ? "default" : "secondary"}>
               {template.is_active ? "Aktif" : "Pasif"}
             </Badge>
@@ -125,7 +125,7 @@ export default async function SablonDetayPage({ params }: PageProps) {
 
           return (
             <Card key={category.id}>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
                 <CardTitle className="text-base">{category.ad}</CardTitle>
                 {canWrite && (
                   <div className="flex items-center gap-2">

@@ -87,7 +87,7 @@ export default async function UygunsuzlukDetayPage({ params }: PageProps) {
   return (
     <div className="space-y-6 p-4 md:p-6">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4">
           <div>
             <CardTitle className="text-lg">{finding.baslik}</CardTitle>
             <p className="text-sm text-mesmer-text-muted">

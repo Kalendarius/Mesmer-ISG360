@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-mesmer-border bg-mesmer-surface px-4 md:px-6">
           <div className="flex items-center gap-2 md:hidden">
             <Logo variant="symbol" priority />
@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             organizationDisplayName={activeOrganization.organizationDisplayName}
           />
         </header>
-        <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
       </div>
       <BottomNav />
     </div>
